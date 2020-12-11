@@ -5,6 +5,7 @@ Type pivottable_info
     output_ws As Worksheet
     range_area As String
 End Type
+Const cst_holidaySheetName As String = "holiday"
 
 Sub list()
 '
@@ -184,6 +185,7 @@ Application.DisplayAlerts = False
     Range("A1").Select
     
     ThisWorkbook.Save
+    Call getHolidayData
     Call checkOvertime
     Call checkConnectedIPaddress
     ThisWorkbook.Worksheets("check").Activate
@@ -209,7 +211,7 @@ Public Sub checkOvertime()
     Dim tempWeekday As Integer
     Dim tempMatch As Variant
     
-    Set holidaySheet = ThisWorkbook.Worksheets("holiday")
+    Set holidaySheet = ThisWorkbook.Worksheets(cst_holidaySheetName)
     Set checkSheet = ThisWorkbook.Worksheets("check")
     Set outputSheet = addWorksheet(ThisWorkbook, cst_outputSheetname, checkSheet)
     
@@ -230,7 +232,7 @@ Public Sub checkOvertime()
             If (tempWeekday <> vbSunday) And (tempWeekday <> vbSaturday) Then
                 tempMatch = WorksheetFunction.Match(CLng(tempDate), holidaySheet.Range("A:A"), 0)
                 If IsEmpty(tempMatch) Or IsNull(tempMatch) Then
-                    If (CDate("22:00:00") < CDate(.Cells(i, cst_hmsCol).Value)) Or (CDate(.Cells(i, cst_hmsCol).Value) < CDate("6:00:00")) Then
+                    If (CDate("22:00:00") < CDate(.Cells(i, cst_hmsCol).Value)) Or (CDate(.Cells(i, cst_hmsCol).Value) < CDate("5:00:00")) Then
                         .Cells(i, categoryCol).Value = "深夜"
                     Else
                         .Rows(i).Delete
@@ -363,3 +365,28 @@ Private Function setPivottableInfo(output_wb As Workbook, input_ws_name As Strin
     End With
     setPivottableInfo = pv_info
 End Function
+
+Public Sub getHolidayData()
+    Const cst_holidayFolderName As String = "祝日マスタ"
+    Const cst_holidayFileName As String = "祝日入力シート（事務局用）.xlsx"
+    Const cst_copyFromSheetName As String = "祝日"
+    Dim inputPath As String
+    Dim i As Integer
+    Dim holidayWB As Workbook
+    Dim copyFromWS As Worksheet
+    Dim copyToWS As Worksheet
+    Set copyToWS = addWorksheet(ThisWorkbook, cst_holidaySheetName)
+    inputPath = ThisWorkbook.Path
+    For i = 0 To 1
+        inputPath = Left(inputPath, InStrRev(inputPath, "¥") - 1)
+    Next i
+    inputPath = inputPath & "¥" & cst_holidayFolderName & "¥" & cst_holidayFileName
+    On Error GoTo FINL_L
+    Workbooks.Open Filename:=inputPath
+    Set holidayWB = ActiveWorkbook
+    Set copyFromWS = holidayWB.Worksheets(cst_copyFromSheetName)
+    copyFromWS.Cells.Copy (copyToWS.Cells(1, 1))
+FINL_L:
+    holidayWB.Close savechanges:=False
+End Sub
+
