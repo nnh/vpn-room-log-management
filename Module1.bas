@@ -6,6 +6,8 @@ Type pivottable_info
     range_area As String
 End Type
 Const cst_holidaySheetName As String = "holiday"
+Const cst_outputSheetname As String = "overtime"
+Const cst_checkSheetname As String = "check"
 
 Sub list()
 '
@@ -137,11 +139,11 @@ Application.DisplayAlerts = False
     Range("A1").Select
 
     Sheets("data").Select
-    Sheets("data").Copy Before:=Worksheets(1)
-    ActiveSheet.Name = "check"
+    Sheets("data").Copy before:=Worksheets(1)
+    ActiveSheet.Name = cst_checkSheetname
     
 
-    Sheets("check").Select
+    Sheets(cst_checkSheetname).Select
     ActiveSheet.Range("D:D").AutoFilter Field:=1, Criteria1:= _
     "<>*Call*", Operator:=xlAnd
     Range(Selection, Selection.End(xlDown)).Select
@@ -164,14 +166,14 @@ Application.DisplayAlerts = False
     Cells.Select
 
     Application.CutCopyMode = False
-    ActiveWorkbook.Worksheets("check").Sort.SortFields.Clear
-    ActiveWorkbook.Worksheets("check").Sort.SortFields.Add Key:=Range("E:E") _
+    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("E:E") _
         , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    ActiveWorkbook.Worksheets("check").Sort.SortFields.Add Key:=Range("B:B") _
+    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("B:B") _
         , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    ActiveWorkbook.Worksheets("check").Sort.SortFields.Add Key:=Range("C:C") _
+    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("C:C") _
         , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    With ActiveWorkbook.Worksheets("check").Sort
+    With ActiveWorkbook.Worksheets(cst_checkSheetname).Sort
         .SetRange Range("A:E")
         .Header = xlGuess
         .MatchCase = False
@@ -188,16 +190,16 @@ Application.DisplayAlerts = False
     Call getHolidayData
     Call checkOvertime
     Call checkConnectedIPaddress
-    ThisWorkbook.Worksheets("check").Activate
-'    ActiveWorkbook.Save
+    ThisWorkbook.Worksheets(cst_outputSheetname).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
+    Call outputPDF(Array(cst_outputSheetname, cst_checkSheetname))
     
 Application.ScreenUpdating = True
 Application.DisplayAlerts = True
+ActiveWorkbook.Save
     
 End Sub
 
 Public Sub checkOvertime()
-    Const cst_outputSheetname = "overtime"
     Const cst_hmsCol As Integer = 3
     Dim categoryCol As Integer
     Dim holidaySheet As Worksheet
@@ -212,7 +214,7 @@ Public Sub checkOvertime()
     Dim tempMatch As Variant
     
     Set holidaySheet = ThisWorkbook.Worksheets(cst_holidaySheetName)
-    Set checkSheet = ThisWorkbook.Worksheets("check")
+    Set checkSheet = ThisWorkbook.Worksheets(cst_checkSheetname)
     Set outputSheet = addWorksheet(ThisWorkbook, cst_outputSheetname, checkSheet)
     
     With checkSheet.Cells.SpecialCells(xlCellTypeLastCell)
@@ -389,4 +391,26 @@ Public Sub getHolidayData()
 FINL_L:
     holidayWB.Close savechanges:=False
 End Sub
+
+Private Sub outputPDF(outputWSNames As Variant)
+    Dim outputName As String
+    Dim outputWS As Worksheet
+    Dim outputWSName As Variant
+    outputName = Replace(ThisWorkbook.Name, ".xlsm", ".pdf")
+    For Each outputWSName In ThisWorkbook.Worksheets(outputWSNames)
+        Set outputWS = ThisWorkbook.Worksheets(outputWSName.Name)
+        With outputWS.PageSetup
+            .Orientation = xlPortrait
+            .Zoom = False
+            .FitToPagesWide = 1
+            .FitToPagesTall = False
+        End With
+    Next outputWSName
+    ThisWorkbook.Worksheets(outputWSNames).Select
+    ActiveSheet.ExportAsFixedFormat Type:=xlTypePDF, Filename:="¥¥ARONAS¥Archives¥Log¥VPN¥" & outputName
+    ThisWorkbook.Worksheets(cst_checkSheetname).Select
+End Sub
+
+
+
 
