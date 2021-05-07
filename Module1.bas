@@ -404,6 +404,7 @@ Private Sub outputPDF(outputWSNames As Variant)
             .Zoom = False
             .FitToPagesWide = 1
             .FitToPagesTall = False
+            .CenterHeader = outputWS.Name
         End With
     Next outputWSName
     ThisWorkbook.Worksheets(outputWSNames).Select
