@@ -1,24 +1,24 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "vpn_management"
+Option Explicit
 Type pivottable_info
     cst_pivottable_name As String
     input_ws As Worksheet
     output_ws As Worksheet
     range_area As String
 End Type
-Const cst_holidaySheetName As String = "holiday"
 Const cst_outputSheetname As String = "overtime"
-Const cst_checkSheetname As String = "check"
+Const cst_vpndstSheetname As String = "data"
 
-Sub list()
+Public Sub get_vpn_logs()
 '
 Application.ScreenUpdating = False
 Application.DisplayAlerts = False
 '
+    Dim inputSheet As Worksheet
+    Set inputSheet = ThisWorkbook.Worksheets("vpn_input")
     Dim dstSheet    As Worksheet
-    Set dstSheet = ThisWorkbook.Worksheets(1)
-
-    Dim srcBook     As Workbook
-    Dim srcSheet    As Worksheet
+    Set dstSheet = ThisWorkbook.Worksheets(cst_vpndstSheetname)
+    dstSheet.Cells.Clear
 
     Dim LogFolder   As String
     Dim buf         As String
@@ -28,170 +28,89 @@ Application.DisplayAlerts = False
     Dim nextmonth   As String
     Dim LastLog     As String
     Dim M           As String
-    
-    Dim i           As Long
-    
-    LogFolder = dstSheet.Range("H1")
+    Dim temp_ws     As Worksheet
+        
+    LogFolder = inputSheet.Range("H1")
 
-    a = dstSheet.Range("I1") & "/" & dstSheet.Range("J1")
+    a = inputSheet.Range("I1") & "/" & inputSheet.Range("J1")
     lastmonth = DateAdd("m", -1, a)
     lastmonth = Format(lastmonth, "yyyymm")
     lastmonth = "¥access.log-" & lastmonth & "*"
     
     buf = Dir(LogFolder & lastmonth)
-
-    i = 0
-    Do While buf <> ""
-        i = i + 1
-        Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
-        Set srcSheet = srcBook.Worksheets(1)
-        srcSheet.Select
-        LstRow1 = srcSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        srcSheet.Range("A1:A" & LstRow1).Copy
-        
-        LstRow2 = dstSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        dstSheet.Range("A" & LstRow2).Offset(1, 0).PasteSpecial xlPasteAll
-
-        srcBook.Close False
-
-        buf = Dir()
-    Loop
+    Call getVPNInfo(buf, LogFolder, dstSheet)
     
     month = Format(a, "yyyymm")
     month = "¥access.log-" & month & "*"
     
     buf = Dir(LogFolder & month)
-
-    i = 0
-    Do While buf <> ""
-        i = i + 1
-        Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
-        Set srcSheet = srcBook.Worksheets(1)
-        srcSheet.Select
-        LstRow1 = srcSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        srcSheet.Range("A1:A" & LstRow1).Copy
-        
-        LstRow2 = dstSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        dstSheet.Range("A" & LstRow2).Offset(1, 0).PasteSpecial xlPasteAll
-
-        srcBook.Close False
-
-        buf = Dir()
-    Loop
+    Call getVPNInfo(buf, LogFolder, dstSheet)
     
     nextmonth = DateAdd("m", 1, a)
     nextmonth = Format(nextmonth, "yyyymm")
     nextmonth = "¥access.log-" & nextmonth & "*"
     
     buf = Dir(LogFolder & nextmonth)
-
-    i = 0
-    Do While buf <> ""
-        i = i + 1
-        Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
-        Set srcSheet = srcBook.Worksheets(1)
-        srcSheet.Select
-        LstRow1 = srcSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        srcSheet.Range("A1:A" & LstRow1).Copy
-        
-        LstRow2 = dstSheet.Cells(Rows.Count, 1).End(xlUp).Row
-        dstSheet.Range("A" & LstRow2).Offset(1, 0).PasteSpecial xlPasteAll
-
-        srcBook.Close False
-
-        buf = Dir()
-    Loop
+    Call getVPNInfo(buf, LogFolder, dstSheet)
     
     LastLog = "¥access.log"
     
     buf = Dir(LogFolder & LastLog)
-
-    Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
-    Set srcSheet = srcBook.Worksheets(1)
-    srcSheet.Select
-    LstRow1 = srcSheet.Cells(Rows.Count, 1).End(xlUp).Row
-    srcSheet.Range("A1:A" & LstRow1).Copy
+    Call getVPNInfo(buf, LogFolder, dstSheet)
     
-    LstRow2 = dstSheet.Cells(Rows.Count, 1).End(xlUp).Row
-    dstSheet.Range("A" & LstRow2).Offset(1, 0).PasteSpecial xlPasteAll
-
-    srcBook.Close False
-
-    buf = Dir()
-
-    Sheets("data").Select
-    Columns("A:A").Select
-    Selection.TextToColumns Destination:=Range("A1"), DataType:=xlFixedWidth, _
+    dstSheet.Columns("A:A").TextToColumns Destination:=Range("A1"), DataType:=xlFixedWidth, _
         FieldInfo:=Array(Array(0, 1), Array(3, 1), Array(6, 1), Array(15, 1)), _
         TrailingMinusNumbers:=True
-    Cells.Select
-
-    Columns("A:D").Select
-    Columns("A:D").EntireColumn.AutoFit
-    Range("A1").Select
+    dstSheet.Columns("A:D").EntireColumn.AutoFit
+    dstSheet.Range("A1").Select
     
-    M = Range("K1").Value
-    ActiveSheet.Range("A:A").AutoFilter Field:=1, Criteria1:= _
+    M = inputSheet.Range("K1").Value
+    dstSheet.Range("A:A").AutoFilter Field:=1, Criteria1:= _
     "<>*" & M & "*", Operator:=xlAnd
-    Range(Selection, Selection.End(xlDown)).Select
-    Cells.Select
-    Selection.Delete Shift:=xlUp
-    Range("A1").Select
+    dstSheet.Cells.Delete Shift:=xlUp
+    dstSheet.Range("A1").Select
 
-    Sheets("data").Select
-    Sheets("data").Copy before:=Worksheets(1)
+    For Each temp_ws In ThisWorkbook.Worksheets
+        If temp_ws.Name = cst_checkSheetname Then
+            temp_ws.Delete
+            Exit For
+        End If
+    Next temp_ws
+    dstSheet.Copy before:=ThisWorkbook.Worksheets(1)
     ActiveSheet.Name = cst_checkSheetname
-    
+    With ThisWorkbook.Worksheets(cst_checkSheetname)
+        .Range("D:D").AutoFilter Field:=1, Criteria1:="<>*Call*", Operator:=xlAnd
+        .Cells.Delete Shift:=xlUp
+        .Range("E1").FormulaR1C1 = "=MID(RC[-1],FIND(""'"",RC[-1])+1,LEN(RC[-1])-FIND(""'"",RC[-1])-1)"
+        .Range("E1").AutoFill Destination:=.Range("E1:E" & .Range("D" & .Rows.Count).End(xlUp).Row)
+        .Range("E:E").Copy
+        .Range("E:E").PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        .Cells.Select
 
-    Sheets(cst_checkSheetname).Select
-    ActiveSheet.Range("D:D").AutoFilter Field:=1, Criteria1:= _
-    "<>*Call*", Operator:=xlAnd
-    Range(Selection, Selection.End(xlDown)).Select
-    Cells.Select
-    Selection.Delete Shift:=xlUp
-    Range("A1").Select
+        Application.CutCopyMode = False
+        With .Sort
+            .SortFields.Clear
+            .SortFields.Add Key:=Range("E:E"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SortFields.Add Key:=Range("B:B"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SortFields.Add Key:=Range("C:C"), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+            .SetRange Range("A:E")
+            .Header = xlGuess
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
 
-    Range("E1").Select
-    ActiveCell.FormulaR1C1 = _
-        "=MID(RC[-1],FIND(""'"",RC[-1])+1,LEN(RC[-1])-FIND(""'"",RC[-1])-1)"
-
-    Range("E1").Copy
-    Selection.AutoFill Destination:=Range("E1:E" & Range("D" & Rows.Count).End(xlUp).Row)
-    Range("E1:E" & Range("D" & Rows.Count).End(xlUp).Row).Select
-    
-    Range("E:E").Select
-    Selection.Copy
-    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
-        :=False, Transpose:=False
-    Cells.Select
-
-    Application.CutCopyMode = False
-    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Clear
-    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("E:E") _
-        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("B:B") _
-        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    ActiveWorkbook.Worksheets(cst_checkSheetname).Sort.SortFields.Add Key:=Range("C:C") _
-        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    With ActiveWorkbook.Worksheets(cst_checkSheetname).Sort
-        .SetRange Range("A:E")
-        .Header = xlGuess
-        .MatchCase = False
-        .Orientation = xlTopToBottom
-        .SortMethod = xlPinYin
-        .Apply
+        .Range("A:E").EntireColumn.AutoFit
+        .Range("A1").Select
     End With
-    
-    Columns("A:E").Select
-    Columns("A:E").EntireColumn.AutoFit
-    Range("A1").Select
     
     ThisWorkbook.Save
     Call getHolidayData
     Call checkOvertime
     Call checkConnectedIPaddress
     ThisWorkbook.Worksheets(cst_outputSheetname).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
-    Call outputPDF(Array(cst_outputSheetname, cst_checkSheetname))
+    Call outputPDF(Array(cst_outputSheetname, cst_checkSheetname), "¥¥ARONAS¥Archives¥Log¥VPN¥")
     
 Application.ScreenUpdating = True
 Application.DisplayAlerts = True
@@ -274,24 +193,6 @@ Private Function getTargetYear(targetMonth As String) As Integer
     
 End Function
 
-Private Function addWorksheet(targetWorkbook As Workbook, sheetname As String, Optional copyfromSheet As Worksheet = Nothing) As Worksheet
-    Dim outputSheet As Worksheet
-    ' Delete outputsheet
-    On Error Resume Next
-    Set outputSheet = targetWorkbook.Worksheets(sheetname)
-    On Error GoTo 0
-    If Not outputSheet Is Nothing Then
-        outputSheet.Delete
-    End If
-    If Not copyfromSheet Is Nothing Then
-        copyfromSheet.Copy after:=copyfromSheet
-    Else
-        ThisWorkbook.Worksheets.Add
-    End If
-    ActiveSheet.Name = sheetname
-    Set addWorksheet = ThisWorkbook.Worksheets(sheetname)
-End Function
-
 Public Sub checkConnectedIPaddress()
     Const output_sheetname As String = "connected_from"
     Dim dataSheet As Worksheet
@@ -300,6 +201,7 @@ Public Sub checkConnectedIPaddress()
     Dim i As Long
     Dim tempstr As String
     Dim tempstr_2 As Variant
+    Dim tempstr_3 As Variant
     Dim str_ip As String
     Dim str_user As String
     Dim output_row As Long
@@ -367,50 +269,33 @@ Private Function setPivottableInfo(output_wb As Workbook, input_ws_name As Strin
     End With
     setPivottableInfo = pv_info
 End Function
-
-Public Sub getHolidayData()
-    Const cst_holidayFolderName As String = "祝日マスタ"
-    Const cst_holidayFileName As String = "祝日入力シート（事務局用）.xlsx"
-    Const cst_copyFromSheetName As String = "祝日"
-    Dim inputPath As String
-    Dim i As Integer
-    Dim holidayWB As Workbook
-    Dim copyFromWS As Worksheet
-    Dim copyToWS As Worksheet
-    Set copyToWS = addWorksheet(ThisWorkbook, cst_holidaySheetName)
-    inputPath = ThisWorkbook.Path
-    For i = 0 To 1
-        inputPath = Left(inputPath, InStrRev(inputPath, "¥") - 1)
-    Next i
-    inputPath = inputPath & "¥" & cst_holidayFolderName & "¥" & cst_holidayFileName
-    On Error GoTo FINL_L
-    Workbooks.Open Filename:=inputPath
-    Set holidayWB = ActiveWorkbook
-    Set copyFromWS = holidayWB.Worksheets(cst_copyFromSheetName)
-    copyFromWS.Cells.Copy (copyToWS.Cells(1, 1))
-FINL_L:
-    holidayWB.Close savechanges:=False
-End Sub
-
-Private Sub outputPDF(outputWSNames As Variant)
-    Dim outputName As String
-    Dim outputWS As Worksheet
-    Dim outputWSName As Variant
-    outputName = Replace(ThisWorkbook.Name, ".xlsm", ".pdf")
-    For Each outputWSName In ThisWorkbook.Worksheets(outputWSNames)
-        Set outputWS = ThisWorkbook.Worksheets(outputWSName.Name)
-        With outputWS.PageSetup
-            .Orientation = xlPortrait
-            .Zoom = False
-            .FitToPagesWide = 1
-            .FitToPagesTall = False
-            .CenterHeader = outputWS.Name
+Private Sub getVPNInfo(buf As String, LogFolder As String, dstSheet As Worksheet)
+    Dim i As Long
+    Dim srcBook     As Workbook
+    Dim srcSheet    As Worksheet
+    Dim LstRow1     As Long
+    Dim LstRow2     As Long
+    i = 0
+    Do While buf <> ""
+        i = i + 1
+        Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
+        Set srcSheet = srcBook.Worksheets(1)
+        With srcSheet
+            .Select
+            LstRow1 = .Cells(.Rows.Count, 1).End(xlUp).Row
+            .Range("A1:A" & LstRow1).Copy
         End With
-    Next outputWSName
-    ThisWorkbook.Worksheets(outputWSNames).Select
-    ActiveSheet.ExportAsFixedFormat Type:=xlTypePDF, Filename:="¥¥ARONAS¥Archives¥Log¥VPN¥" & outputName
-    ThisWorkbook.Worksheets(cst_checkSheetname).Select
+        With dstSheet
+            LstRow2 = .Cells(.Rows.Count, 1).End(xlUp).Row
+            .Range("A" & LstRow2).Offset(1, 0).PasteSpecial xlPasteAll
+        End With
+        srcBook.Close False
+
+        buf = Dir()
+    Loop
+
 End Sub
+
 
 
 
