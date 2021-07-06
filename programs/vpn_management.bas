@@ -1,62 +1,56 @@
 Attribute VB_Name = "vpn_management"
-Option Explicit
+'Option Explicit
 Type pivottable_info
     cst_pivottable_name As String
     input_ws As Worksheet
     output_ws As Worksheet
     range_area As String
 End Type
-Const cst_outputSheetname As String = "overtime"
-Const cst_vpndstSheetname As String = "data"
-
+Const cst_outputSheetName As String = "overtime"
+Const cst_vpn_inputSheetName As String = "vpn_input"
 Public Sub get_vpn_logs()
 '
 Application.ScreenUpdating = False
 Application.DisplayAlerts = False
-'
-    Dim inputSheet As Worksheet
-    Set inputSheet = ThisWorkbook.Worksheets("vpn_input")
-    Dim dstSheet    As Worksheet
-    Set dstSheet = ThisWorkbook.Worksheets(cst_vpndstSheetname)
-    dstSheet.Cells.Clear
 
-    Dim LogFolder   As String
+    Dim dstSheet    As Worksheet
+    Set dstSheet = ThisWorkbook.Worksheets(cst_vpn_inputSheetName)
+    dstSheet.Cells.Clear
+    
+    Dim logFolder As String
     Dim buf         As String
     Dim a           As String
-    Dim lastmonth   As String
-    Dim month       As String
-    Dim nextmonth   As String
+    Dim lastMonthDate As Date
+    Dim lastMonth   As String
+    Dim strMonth       As String
+    Dim monthDate As Date
+    Dim nextMonthDate As Date
+    Dim nextMonth   As String
     Dim LastLog     As String
     Dim M           As String
     Dim temp_ws     As Worksheet
-        
-    LogFolder = inputSheet.Range("H1")
-
-    a = inputSheet.Range("I1") & "/" & inputSheet.Range("J1")
-    lastmonth = DateAdd("m", -1, a)
-    lastmonth = Format(lastmonth, "yyyymm")
-    lastmonth = "¥access.log-" & lastmonth & "*"
-    
-    buf = Dir(LogFolder & lastmonth)
-    Call getVPNInfo(buf, LogFolder, dstSheet)
-    
-    month = Format(a, "yyyymm")
-    month = "¥access.log-" & month & "*"
-    
-    buf = Dir(LogFolder & month)
-    Call getVPNInfo(buf, LogFolder, dstSheet)
-    
-    nextmonth = DateAdd("m", 1, a)
-    nextmonth = Format(nextmonth, "yyyymm")
-    nextmonth = "¥access.log-" & nextmonth & "*"
-    
-    buf = Dir(LogFolder & nextmonth)
-    Call getVPNInfo(buf, LogFolder, dstSheet)
-    
+    Dim temp As String
+    Dim targetArray As Variant
+    Dim tempTargetMonth As Variant
+    logFolder = "¥¥ARONAS¥Archives¥Log¥VPN¥rawdata¥"
+    temp = getInputDir(logFolder)
+    strMonth = Right(temp, 6)
+    monthDate = DateValue(Left(strMonth, 4) & "/" & Mid(strMonth, 5, 2) & "/01")
+    M = Format(monthDate, "mmm")
+    lastMonthDate = DateAdd("m", -1, monthDate)
+    lastMonth = Year(lastMonthDate) & Format(month(lastMonthDate), "00")
+    nextMonthDate = DateAdd("m", 1, monthDate)
+    nextMonth = Year(nextMonthDate) & Format(month(nextMonthDate), "00")
+    targetArray = Array(lastMonth, strMonth, nextMonth)
+    For Each tempTargetMonth In targetArray
+        buf = Dir(logFolder & "access.log-" & tempTargetMonth & "*")
+        Call getVPNInfo(buf, logFolder, dstSheet)
+    Next tempTargetMonth
+         
     LastLog = "¥access.log"
     
-    buf = Dir(LogFolder & LastLog)
-    Call getVPNInfo(buf, LogFolder, dstSheet)
+    buf = Dir(logFolder & LastLog)
+    Call getVPNInfo(buf, logFolder, dstSheet)
     
     dstSheet.Columns("A:A").TextToColumns Destination:=Range("A1"), DataType:=xlFixedWidth, _
         FieldInfo:=Array(Array(0, 1), Array(3, 1), Array(6, 1), Array(15, 1)), _
@@ -64,7 +58,6 @@ Application.DisplayAlerts = False
     dstSheet.Columns("A:D").EntireColumn.AutoFit
     dstSheet.Range("A1").Select
     
-    M = inputSheet.Range("K1").Value
     dstSheet.Range("A:A").AutoFilter Field:=1, Criteria1:= _
     "<>*" & M & "*", Operator:=xlAnd
     dstSheet.Cells.Delete Shift:=xlUp
@@ -109,8 +102,8 @@ Application.DisplayAlerts = False
     Call getHolidayData
     Call checkOvertime
     Call checkConnectedIPaddress
-    ThisWorkbook.Worksheets(cst_outputSheetname).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
-    Call outputPDF(Array(cst_outputSheetname, cst_checkSheetname), "¥¥ARONAS¥Archives¥Log¥VPN¥")
+    ThisWorkbook.Worksheets(cst_outputSheetName).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
+    Call outputPDF(Array(cst_outputSheetName, cst_checkSheetname), "¥¥ARONAS¥Archives¥Log¥VPN¥", "Card", xlPortrait)
     
 Application.ScreenUpdating = True
 Application.DisplayAlerts = True
@@ -120,56 +113,26 @@ End Sub
 
 Public Sub checkOvertime()
     Const cst_hmsCol As Integer = 3
-    Dim categoryCol As Integer
-    Dim holidaySheet As Worksheet
-    Dim checkSheet As Worksheet
-    Dim outputSheet As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
-    Dim targetYear As String
-    Dim targetMonth As String
-    Dim tempDate As Date
-    Dim tempWeekday As Integer
-    Dim tempMatch As Variant
+    Dim overtime As overtime_info
     
-    Set holidaySheet = ThisWorkbook.Worksheets(cst_holidaySheetName)
-    Set checkSheet = ThisWorkbook.Worksheets(cst_checkSheetname)
-    Set outputSheet = addWorksheet(ThisWorkbook, cst_outputSheetname, checkSheet)
+    Set overtime.targetWorksheet = addWorksheet(ThisWorkbook, cst_outputSheetName, ThisWorkbook.Worksheets(cst_checkSheetname))
     
-    With checkSheet.Cells.SpecialCells(xlCellTypeLastCell)
-        lastRow = .Row
-        categoryCol = .Column + 1
+    With overtime.targetWorksheet.Cells.SpecialCells(xlCellTypeLastCell)
+        overtime.targetLastRow = .Row
+        overtime.categoryColumnNumber = .Column + 1
     End With
+    overtime.targetStartRow = 1
+    Set overtime.holidayWorksheet = ThisWorkbook.Worksheets(cst_holidaySheetName)
+    overtime.targetMonth = overtime.targetWorksheet.Cells(1, 1).Value
+    overtime.targetYear = getTargetYear(overtime.targetMonth)
+    overtime.monthColumnNumber = 1
+    overtime.dayColumnNumber = 2
+    overtime.timeColumnNumber = 3
+    Call setOvertimeInfo(overtime)
     
-    targetMonth = outputSheet.Cells(1, 1).Value
-    targetYear = getTargetYear(targetMonth)
-    
-    For i = lastRow To 1 Step -1
-        With outputSheet
-            tempDate = CDate(.Cells(i, 1).Value & " " & .Cells(i, 2).Value & ", " & targetYear)
-            tempWeekday = Weekday(tempDate)
-            tempMatch = Null
-            On Error Resume Next
-            If (tempWeekday <> vbSunday) And (tempWeekday <> vbSaturday) Then
-                tempMatch = WorksheetFunction.Match(CLng(tempDate), holidaySheet.Range("A:A"), 0)
-                If IsEmpty(tempMatch) Or IsNull(tempMatch) Then
-                    If (CDate("22:00:00") < CDate(.Cells(i, cst_hmsCol).Value)) Or (CDate(.Cells(i, cst_hmsCol).Value) < CDate("5:00:00")) Then
-                        .Cells(i, categoryCol).Value = "深夜"
-                    Else
-                        .Rows(i).Delete
-                    End If
-                Else
-                    .Cells(i, categoryCol).Value = "休日"
-                End If
-            Else
-                .Cells(i, categoryCol).Value = "休日"
-            End If
-            On Error GoTo 0
-        End With
-    Next i
     ' insert header
-    outputSheet.Rows(1).Insert
-    With outputSheet.Cells(1, 1)
+    overtime.targetWorksheet.Rows(1).Insert
+    With overtime.targetWorksheet.Cells(1, 1)
         .Value = "月"
         .Offset(0, 1).Value = "日"
         .Offset(0, 2).Value = "時間"
@@ -177,7 +140,7 @@ Public Sub checkOvertime()
         .Offset(0, 4).Value = "ユーザー"
         .Offset(0, 5).Value = "区分"
     End With
-    outputSheet.Cells.EntireColumn.AutoFit
+     overtime.targetWorksheet.Cells.EntireColumn.AutoFit
 End Sub
 
 Private Function getTargetYear(targetMonth As String) As Integer
@@ -206,7 +169,7 @@ Public Sub checkConnectedIPaddress()
     Dim str_user As String
     Dim output_row As Long
         
-    Set dataSheet = ThisWorkbook.Worksheets("data")
+    Set dataSheet = ThisWorkbook.Worksheets(cst_vpn_inputSheetName)
     Set outputSheet = addWorksheet(ThisWorkbook, "connected_from")
     lastRow = dataSheet.Cells.SpecialCells(xlCellTypeLastCell).Row
     output_row = 1
@@ -269,7 +232,7 @@ Private Function setPivottableInfo(output_wb As Workbook, input_ws_name As Strin
     End With
     setPivottableInfo = pv_info
 End Function
-Private Sub getVPNInfo(buf As String, LogFolder As String, dstSheet As Worksheet)
+Private Sub getVPNInfo(buf As String, logFolder As String, dstSheet As Worksheet)
     Dim i As Long
     Dim srcBook     As Workbook
     Dim srcSheet    As Worksheet
@@ -278,7 +241,7 @@ Private Sub getVPNInfo(buf As String, LogFolder As String, dstSheet As Worksheet
     i = 0
     Do While buf <> ""
         i = i + 1
-        Set srcBook = Workbooks.Open(LogFolder + "¥" + buf)
+        Set srcBook = Workbooks.Open(logFolder + "¥" + buf)
         Set srcSheet = srcBook.Worksheets(1)
         With srcSheet
             .Select
