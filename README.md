@@ -2,8 +2,9 @@
 ## 概要
 VPNログ、入退室ログを整形するExcel用マクロです。
 ## ファイルのダウンロード
-Zipファイルをダウンロードし、復号したファイルを任意の場所に保存してください。  
-![download](https://user-images.githubusercontent.com/24307469/126087131-7fd36292-2220-4a86-85ca-53925e1b74e0.png). 
+Zipファイルをダウンロードします。  
+![download](https://user-images.githubusercontent.com/24307469/126087131-7fd36292-2220-4a86-85ca-53925e1b74e0.png).  
+ダウンロードしたファイルを右クリックして「すべて展開」します。
 ## 実行方法
 1. 「VPN CardLogs template.xlsm」の名前を「VPN CardLogs YYYYMM.xlsm」（YYYYMMは対象年月）に変更して開きます。  
 1. Sheet1シートの実行ボタンをクリックすると処理が実行されます。  
