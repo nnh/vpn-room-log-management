@@ -20,4 +20,26 @@ VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf
 土、日、祝日または22:00:00～翌4:59:59までに入退室、VPNアクセスがあった場合  
 ### 入出力ファイル
 SEアシスタントマニュアル（月次）に記載
+### ディレクトリ構成とファイルの概要
+```
+.
+├── README.md ... このReadMeです
+├── programs
+│   ├── VPN CardLogs template.xlsm ... プログラム本体です
+│   ├── common.bas ... 共通処理モジュール
+│   ├── iconv.sh ... ファイルの文字コード変換用スクリプト
+│   ├── room_management.bas ... 入退室ログ出力処理モジュール
+│   └── vpn_management.bas ... VPNログ出力処理モジュール
+└── public_holiday
+    └── 祝日入力シート（事務局用）.xlsx ... 祝日情報
+```
+### プログラム修正時の手順
+1. 修正したモジュールをエクスポートしてください。
+2. エクスプローラで右クリックし、「Git bash here」をクリックしてください。
+3. 開いたGit bashで下記のコマンドを入力してください。
+```
+sh iconv.sh
+```
+4. エクスポートしたモジュールをテキストエディタなどで開き、文字コードがUTF-8であることを確認してからcommitし、pushしてください。
+
 
