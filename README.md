@@ -14,6 +14,7 @@ Zipファイルをダウンロードします。
 `Const yyyymm As String = ""` 
 1. DC入退室レポートは\\aronas\Archives\Log\DC入退室\CardLogs YYYYMM.pdf  
 VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf  
+実行ファイルは\\aronas\Archives\ISR\SystemAssistant\月例・随時作業関連\VPN・入退室ログ\VPN CardLogs YYYYMM.xlsm  
 に出力されます。  
 ## 仕様
 ### 抽出条件
