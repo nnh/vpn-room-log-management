@@ -43,9 +43,19 @@ End Function
 Public Sub getVpnAndRoomAccessReport()
     Call get_vpn_logs
     Call get_room_logs
+    Call setApplicationSettingsNoAlert
+    ThisWorkbook.SaveAs Filename:="¥¥ARONAS¥Archives¥ISR¥SystemAssistant¥月例・随時作業関連¥VPN・入退室ログ¥" & ThisWorkbook.Name
+    Call setApplicationSettingsDefault
     MsgBox "処理が終了しました"
 End Sub
-
+Public Sub setApplicationSettingsDefault()
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+End Sub
+Public Sub setApplicationSettingsNoAlert()
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+End Sub
 Public Sub getHolidayData()
     Const cst_holidayFolderName As String = "public_holiday"
     Const cst_holidayFileName As String = "祝日入力シート（事務局用）.xlsx"

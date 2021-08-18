@@ -2,9 +2,8 @@ Attribute VB_Name = "room_management"
 Option Explicit
 
 Public Sub get_room_logs()
-
-Application.ScreenUpdating = False
-Application.DisplayAlerts = False
+On Error GoTo FINL_L
+    Call setApplicationSettingsNoAlert
     Const cst_inputSheetName As String = "room_input"
     Const cst_outputSheetName As String = "room_list"
     Call getHolidayData
@@ -86,8 +85,8 @@ Application.DisplayAlerts = False
         outputSheet.Columns(i).Delete
     Next i
     Call outputPDF(Array(cst_outputSheetName), "¥¥aronas¥Archives¥Log¥DC入退室¥", "VPN ", xlLandscape)
+FINL_L:
+    Call setApplicationSettingsDefault
 
-Application.ScreenUpdating = True
-Application.DisplayAlerts = True
 End Sub
 

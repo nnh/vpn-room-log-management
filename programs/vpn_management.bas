@@ -9,9 +9,8 @@ End Type
 Const cst_outputSheetName As String = "overtime"
 Const cst_vpn_inputSheetName As String = "vpn_input"
 Public Sub get_vpn_logs()
-'
-Application.ScreenUpdating = False
-Application.DisplayAlerts = False
+On Error GoTo FINL_L
+    Call setApplicationSettingsNoAlert
 
     Dim dstSheet    As Worksheet
     Set dstSheet = ThisWorkbook.Worksheets(cst_vpn_inputSheetName)
@@ -105,9 +104,8 @@ Application.DisplayAlerts = False
     ThisWorkbook.Worksheets(cst_outputSheetName).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
     Call outputPDF(Array(cst_outputSheetName, cst_checkSheetname), "¥¥ARONAS¥Archives¥Log¥VPN¥", "Card", xlPortrait)
     
-Application.ScreenUpdating = True
-Application.DisplayAlerts = True
-ActiveWorkbook.Save
+FINL_L:
+    Call setApplicationSettingsDefault
     
 End Sub
 
