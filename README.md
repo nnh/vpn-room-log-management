@@ -19,8 +19,9 @@ VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf
 ## 仕様
 ### 抽出条件
 土、日、祝日または22:00:00～翌4:59:59までに入退室、VPNアクセスがあった場合  
-### 入出力ファイル
-SEアシスタントマニュアル（月次）に記載
+### 入力ファイル
+- ¥¥ARONAS¥Archives¥Log¥DC入退室¥rawdata¥YYYYMM （YYYYMMは対象年月） 配下にある拡張子が"csv"のファイル
+- ¥¥ARONAS¥Archives¥Log¥VPN¥rawdata 配下にある"access.log", "access.log- YYYYMMDD" （YYYYMMの範囲は対象年月の±１ヶ月） 
 ### ディレクトリ構成とファイルの概要
 ```
 .
