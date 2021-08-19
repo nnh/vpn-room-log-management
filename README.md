@@ -22,6 +22,29 @@ VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf
 ### 入力ファイル
 - ¥¥ARONAS¥Archives¥Log¥DC入退室¥rawdata¥YYYYMM （YYYYMMは対象年月） 配下にある拡張子が"csv"のファイル
 - ¥¥ARONAS¥Archives¥Log¥VPN¥rawdata 配下にある"access.log", "access.log- YYYYMMDD" （YYYYMMの範囲は対象年月の±１ヶ月） 
+### 出力ファイル
+- PDFファイル
+    - DC入退室レポート  
+        room_listシートの情報が出力される。  
+    - VPN接続レポート  
+        １ページ目にovertimeシート、それ以降にcheckシートの情報が出力される。  
+- EXCELファイル  
+    - overtime  
+        抽出条件に該当したVPN接続ログが出力される。  
+    - holiday  
+        祝日入力シート（事務局用）.xlsx内の祝日情報が出力される。  
+    - check  
+        VPNの接続開始ログが出力される。  
+    - summary_connected_from    
+        ユーザー毎のVPN接続元IPアドレスが出力される。  
+    - connected_from  
+        作業用シート  
+    - room_input  
+        入力対象の全ての入退室情報が出力される。  
+    - room_list  
+        抽出条件に該当した入退室ログが出力される。  
+    - vpn_input  
+        入力対象の全てのVPN接続情報が出力される。  
 ### ディレクトリ構成とファイルの概要
 ```
 .
