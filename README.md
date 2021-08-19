@@ -16,12 +16,14 @@ Zipファイルをダウンロードします。
 VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf  
 実行ファイルは\\aronas\Archives\ISR\SystemAssistant\月例・随時作業関連\VPN・入退室ログ\VPN CardLogs YYYYMM.xlsm  
 に出力されます。  
+1. 祝日が想定通りに出力されていない場合は、祝日入力シート（事務局用）.xlsxの更新を行って再度処理を実行してください。  
+処理手順は「D013-4 SEアシスタントマニュアル（随時）」祝日マスタの更新を参照ください。  
 ## 仕様
 ### 抽出条件
 土、日、祝日または22:00:00～翌4:59:59までに入退室、VPNアクセスがあった場合  
 ### 入力ファイル
-- ¥¥ARONAS¥Archives¥Log¥DC入退室¥rawdata¥YYYYMM （YYYYMMは対象年月） 配下にある拡張子が"csv"のファイル
-- ¥¥ARONAS¥Archives¥Log¥VPN¥rawdata 配下にある"access.log", "access.log- YYYYMMDD" （YYYYMMの範囲は対象年月の±１ヶ月） 
+- \\aronas\Archives\Log\DC入退室\rawdata\YYYYMM （YYYYMMは対象年月） 配下にある拡張子が"csv"のファイル
+- \\aronas\Archives\Log\VPN\rawdata 配下にある"access.log", "access.log- YYYYMMDD" （YYYYMMの範囲は対象年月の±１ヶ月） 
 ### 出力ファイル
 - PDFファイル
     - DC入退室レポート  
