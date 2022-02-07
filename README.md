@@ -14,7 +14,7 @@ Zipファイルをダウンロードします。
 `Const yyyymm As String = ""` 
 1. DC入退室レポートは\\aronas\Archives\Log\DC入退室\CardLogs YYYYMM.pdf  
 VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf  
-実行ファイルは\\aronas\Archives\ISR\SystemAssistant\月例・随時作業関連\VPN・入退室ログ\VPN CardLogs YYYYMM.xlsm  
+実行ファイルは\\aronas\ISR\SystemAssistant\monthlyOperations\vpnAndRoomAccessLogs\VPN CardLogs YYYYMM.xlsm  
 に出力されます。  
 1. 祝日が想定通りに出力されていない場合は、祝日入力シート（事務局用）.xlsxの更新を行って再度処理を実行してください。  
 処理手順は「D013-4 SEアシスタントマニュアル（随時）」祝日マスタの更新を参照ください。  
