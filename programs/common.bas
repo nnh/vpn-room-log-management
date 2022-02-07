@@ -44,7 +44,7 @@ Public Sub getVpnAndRoomAccessReport()
     Call get_vpn_logs
     Call get_room_logs
     Call setApplicationSettingsNoAlert
-    ThisWorkbook.SaveAs Filename:="¥¥ARONAS¥Archives¥ISR¥SystemAssistant¥月例・随時作業関連¥VPN・入退室ログ¥" & ThisWorkbook.Name
+    ThisWorkbook.SaveAs Filename:="¥¥ARONAS¥Archives¥ISR¥SystemAssistant¥monthlyOperations¥vpnAndRoomAccessLogs¥" & ThisWorkbook.Name
     Call setApplicationSettingsDefault
     MsgBox "処理が終了しました"
 End Sub
