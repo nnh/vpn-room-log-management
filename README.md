@@ -20,7 +20,9 @@ VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf
 処理手順は「D013-4 SEアシスタントマニュアル（随時）」祝日マスタの更新を参照ください。  
 ## 仕様
 ### 抽出条件
-土、日、祝日または22:00:00～翌4:59:59までに入退室、VPNアクセスがあった場合  
+下記マニュアルを参照ください。  
+D013-2 SEアシスタントマニュアル（月次） - Google ドキュメント
+https://docs.google.com/document/d/1w9B8Mk3RhhhBOY8wgcM_tpW3yeKvV8Qhy4F7QZKJV0I
 ### 入力ファイル
 - \\aronas\Archives\Log\DC入退室\rawdata\YYYYMM （YYYYMMは対象年月） 配下にある拡張子が"csv"のファイル
 - \\aronas\Archives\Log\VPN\rawdata 配下にある"access.log", "access.log- YYYYMMDD" （YYYYMMの範囲は対象年月の±１ヶ月） 
