@@ -12,8 +12,8 @@ Zipファイルをダウンロードします。
 （例：2020/12/11に処理を実行した場合、"202011"フォルダを対象とする。）  
 それ以外の月を処理する場合は、common module内で下記の記載を検索し、""に対象のフォルダ名を記入してから実行してください。  
 `Const yyyymm As String = ""` 
-1. DC入退室レポートは\\aronas\Archives\Log\DC入退室\CardLogs YYYYMM.pdf  
-VPN接続レポートは\\aronas\Archives\Log\VPN\VPN Logs YYYYMM.pdf  
+1. DC入退室レポートは/Box/Datacenter/ISR/Attendance Management/YYYYMM/CardLogs YYYYMM.pdf  
+VPN接続レポートは/Box/Datacenter/ISR/Attendance Management/YYYYMM/VPN Logs YYYYMM.pdf  
 実行ファイルは\\aronas\ISR\SystemAssistant\monthlyOperations\vpnAndRoomAccessLogs\VPN CardLogs YYYYMM.xlsm  
 に出力されます。  
 1. 祝日が想定通りに出力されていない場合は、祝日入力シート（事務局用）.xlsxの更新を行って再度処理を実行してください。  
