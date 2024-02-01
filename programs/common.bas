@@ -148,3 +148,13 @@ Public Sub setOvertimeInfo(target As overtime_info)
         End With
     Next i
 End Sub
+Public Function GetCurrentUserFolderPath() As String
+    Dim objShell As Object
+    Set objShell = CreateObject("WScript.Shell")
+    
+    ' ユーザーフォルダのパスを取得
+    GetCurrentUserFolderPath = objShell.ExpandEnvironmentStrings("%USERPROFILE%")
+    
+    Set objShell = Nothing
+End Function
+
