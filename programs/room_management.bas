@@ -84,7 +84,9 @@ On Error GoTo FINL_L
     For i = overtime.timeColumnNumber To overtime.monthColumnNumber Step -1
         outputSheet.Columns(i).Delete
     Next i
-    Call outputPDF(Array(cst_outputSheetName), "¥¥aronas¥Archives¥Log¥DC入退室¥", "VPN ", xlLandscape)
+    Dim outputPath As String
+    outputPath = GetCurrentUserFolderPath() & "¥Box¥Datacenter¥ISR¥Attendance Management¥" & overtime.targetYear & overtime.targetMonth & "¥"
+    Call outputPDF(Array(cst_outputSheetName), outputPath, "VPN ", xlLandscape)
 FINL_L:
     Call setApplicationSettingsDefault
 

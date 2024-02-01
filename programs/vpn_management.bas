@@ -102,7 +102,9 @@ On Error GoTo FINL_L
     Call checkOvertime
     Call checkConnectedIPaddress
     ThisWorkbook.Worksheets(cst_outputSheetName).Move before:=ThisWorkbook.Worksheets(cst_checkSheetname)
-    Call outputPDF(Array(cst_outputSheetName, cst_checkSheetname), "¥¥ARONAS¥Archives¥Log¥VPN¥", "Card", xlPortrait)
+    Dim outputPath As String
+    outputPath = GetCurrentUserFolderPath() & "¥Box¥Datacenter¥ISR¥Attendance Management¥" & strMonth & "¥"
+    Call outputPDF(Array(cst_outputSheetName, cst_checkSheetname), outputPath, "Card", xlPortrait)
     
 FINL_L:
     Call setApplicationSettingsDefault
